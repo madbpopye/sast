@@ -39,7 +39,7 @@ public class AuthController {
         String username = body.get("username");
         String password = body.get("password");
 
-        log.info("Login attempt: username={}, password={}", username, password);
+        log.info("Login attempt: username={}", username);
 
         if (authService.authenticate(username, password)) {
             return ResponseEntity.ok(Map.of("message", "Login successful",
