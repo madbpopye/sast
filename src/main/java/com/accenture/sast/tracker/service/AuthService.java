@@ -4,11 +4,10 @@ import com.accenture.sast.tracker.model.AppUser;
 import com.accenture.sast.tracker.repository.AppUserRepository;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
 import java.util.Optional;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 
 @Service
 public class AuthService {
@@ -19,6 +18,7 @@ public class AuthService {
     // Fix: load from an environment variable or a secrets manager, never from code.
     // ──────────────────────────────────────────────────────────────────────────
     private static final String API_SECRET = "Tr@ck3r$ecr3t2024!";
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     private final AppUserRepository userRepository;
 
@@ -34,13 +34,7 @@ public class AuthService {
     //      PasswordEncoder interface.
     // ──────────────────────────────────────────────────────────────────────────
     public String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(hash);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("MD5 not available", e);
-        }
+        return encoder.encode(password);
     }
 
     public AppUser register(String username, String password) {
@@ -51,7 +45,7 @@ public class AuthService {
     public boolean authenticate(String username, String password) {
         Optional<AppUser> user = userRepository.findByUsername(username);
         if (user.isEmpty()) return false;
-        return user.get().getPasswordHash().equals(hashPassword(password));
+        return encoder.matches(password, user.get().getPasswordHash());  
     }
 
     public String getApiSecret() {
