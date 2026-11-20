@@ -17,7 +17,8 @@ public class AuthService {
     // visible to anyone with repository access.
     // Fix: load from an environment variable or a secrets manager, never from code.
     // ──────────────────────────────────────────────────────────────────────────
-    private static final String API_SECRET = "Tr@ck3r$ecr3t2024!";
+    private static final String API_SECRET = System.getenv("API_SECRET");
+
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     private final AppUserRepository userRepository;
