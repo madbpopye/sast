@@ -39,13 +39,17 @@ public class EmployeeService {
     // ──────────────────────────────────────────────────────────────────────────
     public List<Employee> search(String name) {
         String sql = "SELECT id, name, role, email, onboarding_date " +
-                     "FROM employee WHERE LOWER(name) LIKE '%" + name.toLowerCase() + "%'";
-        return jdbc.query(sql, (rs, row) -> {
+                     "FROM employee WHERE LOWER(name) LIKE ?";
+
+        return jdbc.query(sql, 
+            ps -> ps.setString(1, "%" + name.toLowerCase() + "%"),
+            (rs, row) -> {
             Employee e = new Employee();
             e.setName(rs.getString("name"));
             e.setRole(rs.getString("role"));
             e.setEmail(rs.getString("email"));
             return e;
-        });
+            }
+        );
     }
 }
