@@ -11,6 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 @RestController
 @RequestMapping("/api/reports")
 public class ReportController {
@@ -27,7 +30,13 @@ public class ReportController {
     // ─────────────────────────────────────────────────────────────────────────
     @GetMapping("/download")
     public ResponseEntity<Resource> download(@RequestParam String filename) throws IOException {
-        File file = new File(REPORT_DIR + filename);
+        Path reportDir = Paths.get(REPORT_DIR).toAbsolutePath().normalize();
+        Path resolved = reportDir.resolve(filename).normalize();
+
+        if(!resolved.startsWith(reportDir)){
+            return ResponseEntity.badRequest().build();
+        }
+        File file = resolved.toFile();
 
         if (!file.exists()) {
             return ResponseEntity.notFound().build();
