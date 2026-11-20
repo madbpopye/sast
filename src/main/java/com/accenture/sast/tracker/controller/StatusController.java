@@ -4,6 +4,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.HtmlUtils;
 
 // ── VULNERABILITY V8: Reflected Cross-Site Scripting (CWE-79) ────────────────
 // The message parameter is embedded directly into the HTML response body without
@@ -20,7 +21,8 @@ public class StatusController {
 
     @GetMapping(value = "/api/status", produces = MediaType.TEXT_HTML_VALUE)
     public String status(@RequestParam(defaultValue = "Welcome") String message) {
-        return "<html><body><h1>" + message + "</h1>" +
+        String safeMessage = HtmlUtils.htmlEscape(message);
+        return "<html><body><h1>" + safeMessage + "</h1>" +
                "<p>Employee Tracker is running.</p></body></html>";
     }
 }
